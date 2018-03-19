@@ -9,163 +9,115 @@
 import UIKit
 import Photos
 
-class PhotoSelectorController: UIViewController {
+class PhotoSelectorController: UICollectionViewController, UICollectionViewDelegateFlowLayout {
+    let cellId = "cellId"
+    let headerId = "headerId"
     
-    var images = [UIImage]()
-    var assets = [PHAsset]()
-    
-    var selectedImage: UIImage?
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        view.backgroundColor = offerBlack
+        collectionView?.backgroundColor = offerBlack
+        collectionView?.register(ImageViewCollectionViewCell.self, forCellWithReuseIdentifier: cellId)
+        collectionView?.register(PhotoSelectorHeader.self, forSupplementaryViewOfKind: UICollectionElementKindSectionHeader, withReuseIdentifier: headerId)
+        setupNavigationButtons()
+        fetchPhotos()
+    }
     
     override var prefersStatusBarHidden: Bool {
         return true
     }
     
-    let scrollView: UIScrollView = {
-        let sv = UIScrollView()
-        return sv
-    }()
-    
     fileprivate func setupNavigationButtons() {
-        navigationController?.navigationBar.tintColor = .black
+        navigationController?.navigationBar.tintColor = .white
+        navigationController?.navigationBar.barTintColor = .black
         navigationItem.leftBarButtonItem = UIBarButtonItem(title: "Cancel", style: .plain, target: self, action: #selector(handleCancel))
-        navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Next", style: .plain, target: self, action: #selector(handleAddImage))
+        navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Save", style: .plain, target: self, action: #selector(handleSave))
     }
     
-    @objc fileprivate func handleCancel() {
+    @objc func handleCancel() {
         dismiss(animated: true, completion: nil)
     }
     
-    @objc fileprivate func handleAddImage() {
-        selectedImageView.image = selectedImage
-        dismiss(animated: true, completion: nil)
+    @objc func handleSave() {
+        selectedImageView.image = header?.photoImageView.image
+        self.dismiss(animated: true, completion: nil)
     }
     
-  //  var selectedImageView = RoundImageView(color: .purple, cornerRadius: 10)
-    
-    fileprivate func setupViews() {
-    //    view.addSubview(selectedImageView)
-    //    selectedImageView.anchor(top: view.safeAreaLayoutGuide.topAnchor, left: nil, right: nil, bottom: nil, paddingTop: 24, paddingLeft: 0, paddingRight: 0, paddingBottom: 0, width: 350, height: 350)
-    //    selectedImageView.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
-        
-        view.addSubview(scrollView)
-        scrollView.anchor(top: view.safeAreaLayoutGuide.topAnchor, left: nil, right: nil, bottom: view.safeAreaLayoutGuide.bottomAnchor, paddingTop: 34, paddingLeft: 0, paddingRight: 0, paddingBottom: 24, width: 350, height: 0)
-        scrollView.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
-        
-        
+    override func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        return images.count
     }
     
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        view.backgroundColor = .white
-        setupNavigationButtons()
-        setupViews()
-        fetchPhotos()
+    override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: cellId, for: indexPath) as! ImageViewCollectionViewCell
+        cell.imageView.image = images[indexPath.item]
+        return cell
     }
     
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
+        let width = (self.view.frame.width - 3)/4
+        return CGSize(width: width, height: width)
+    }
     
-    var cells = [String : RoundImageView]()
-    func setupGrid(size: Int) {
-        let step: CGFloat = CGFloat(size / 4)
-        DispatchQueue.main.async {
-            self.scrollView.addGestureRecognizer(UIPanGestureRecognizer(target: self, action: #selector(self.handlePan)))
-            self.scrollView.contentSize.height = (step * 80) + (step * 10)
-            for i in 0...size - 1 {
-                let iv = RoundImageView(color: .clear, cornerRadius: 10)
-                let colCount: CGFloat = CGFloat(i % 4)
-                let rowCount: CGFloat = CGFloat(i / 4)
-                
-                iv.frame = CGRect(x: (colCount * 80) + (colCount * 10), y: (rowCount * 80) + (rowCount * 10), width: 80, height: 80)
-                self.scrollView.addSubview(iv)
-                iv.contentMode = .scaleAspectFill
-                iv.image = self.images[i]
-                
-                let key = "\(Int(rowCount))|\(Int(colCount))"
-                self.cells[key] = iv
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumLineSpacingForSectionAt section: Int) -> CGFloat {
+        return 1
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumInteritemSpacingForSectionAt section: Int) -> CGFloat {
+        return 1
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, insetForSectionAt section: Int) -> UIEdgeInsets {
+        return UIEdgeInsets(top: 1, left: 0, bottom: 0, right: 0)
+    }
+    
+    var header: PhotoSelectorHeader?
+    
+    override func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
+        let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: headerId, for: indexPath) as! PhotoSelectorHeader
+        
+        self.header = header
+        
+        if let selectedImage = selectedImage {
+            if let index = self.images.index(of: selectedImage) {
+                let imageManager = PHImageManager.default()
+                let targetSize = CGSize(width: 450, height: 450)
+                imageManager.requestImage(for: assets[index], targetSize: targetSize, contentMode: .default, options: nil, resultHandler: { (image, info) in
+                    if let image = image {
+                        header.photoImageView.image = image
+                    }
+                })
             }
         }
+        
+        return header
     }
     
-    var selectedCell: RoundImageView?
-    
-    @objc fileprivate func handlePan(gesture: UIPanGestureRecognizer) {
-        let location = gesture.location(in: scrollView)
-        let width = view.frame.width / 4
-        let i = Int(location.x / width)
-        let j = Int(location.y / width)
-        
-        let key = "\(j)|\(i)"
-        guard let imageView = cells[key] else { return }
-        let cellOriginalFrame = selectedCell?.frame
-        if selectedCell != imageView {
-//            if selectedCell == cells["0|0"] {
-//                selectedCell?.frame = CGRect(x: 0, y: 0, width: 80, height: 80)
-//            } else if selectedCell == cells["0|3"] {
-//                selectedCell?.frame = CGRect(x: self.scrollView.frame.width - 80, y: 0, width: 80, height: 80)
-//            } else if self.selectedCell == self.cells["6|0"] {
-//                self.selectedCell?.frame = CGRect(x: 0, y: self.scrollView.frame.height - 90, width: 80, height: 80)
-//            } else if self.selectedCell == self.cells["6|3"] {
-//                self.selectedCell?.frame = CGRect(x: self.scrollView.frame.width - 80, y: self.scrollView.frame.height - 90, width: 80, height: 80)
-//            } else if j == 0 || selectedCell == self.cells["0|\(i)"]{
-//                self.selectedCell?.frame = CGRect(x: (self.selectedCell?.frame.origin.x)! + 40, y: 0, width: 80, height: 80)
-//            } else {
-                selectedCell?.layer.transform = CATransform3DIdentity
-                selectedCell?.layer.borderColor = UIColor.clear.cgColor
-//            }
-        }
-        
-        selectedCell = imageView
-        scrollView.bringSubview(toFront: imageView)
-        var size: CGFloat = 80
-        UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: .curveEaseOut, animations: {
-//            if j == 0 && i == 0 {
-//                imageView.frame = CGRect(x: 0, y: 0, width: 160, height: 160)
-//            } else if j == 0 && i == 3 {
-//                imageView.frame = CGRect(x: self.scrollView.frame.width - 160, y: 0, width: 160, height: 160)
-//            } else if j == 6 && i == 0 {
-//                imageView.frame = CGRect(x: 0, y: self.scrollView.frame.height - 170, width: 160, height: 160)
-//            } else if j == 6 && i == 3 {
-//                imageView.frame = CGRect(x: self.scrollView.frame.width - 170, y: self.scrollView.frame.height - 160, width: 160, height: 160)
-//            } else if j == 0 {
-//                let centerX: CGFloat = CGFloat((i * 80) + (i * 10) + 40)
-//                imageView.frame = CGRect(x: centerX - 80, y: 0, width: 160, height: 160)
-//            } else {
-                imageView.layer.transform = CATransform3DMakeScale(2, 2, 2)
-//            }
-        }, completion: nil)
-        
-        if gesture.state == .ended {
-            UIView.animate(withDuration: 0.5, delay: 0.25, usingSpringWithDamping: 0.5, initialSpringVelocity: 0.5, options: .curveEaseInOut, animations: {
-//                if self.selectedCell == self.cells["0|0"] {
-//                    self.selectedCell?.frame = CGRect(x: 0, y: 0, width: 80, height: 80)
-//                } else if self.selectedCell == self.cells["0|3"] {
-//                    self.selectedCell?.frame = CGRect(x: self.scrollView.frame.width - 80, y: 0, width: 80, height: 80)
-//                } else if self.selectedCell == self.cells["6|0"] {
-//                    self.selectedCell?.frame = CGRect(x: 0, y: self.scrollView.frame.height - 90, width: 80, height: 80)
-//                } else if self.selectedCell == self.cells["6|3"] {
-//                    self.selectedCell?.frame = CGRect(x: self.scrollView.frame.width - 80, y: self.scrollView.frame.height - 90, width: 80, height: 80)
-//                } else if self.selectedCell == self.cells["0|\(i)"] {
-//                    self.selectedCell?.frame = CGRect(x: CGFloat(i * 80) + CGFloat(i * 10), y: 0, width: 80, height: 80)
-//                }else {
-                self.selectedCell?.layer.borderColor = UIColor.green.cgColor
-                self.selectedCell?.layer.borderWidth = 2
-                self.selectedCell?.layer.transform = CATransform3DIdentity
-
-//                }
-            }, completion: { (_) in
-                self.selectedImage = imageView.image
-            })
-        }
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
+        let width = view.frame.width
+        return CGSize(width: width, height: width)
     }
+    
+    override func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        self.selectedImage = images[indexPath.row]
+        self.collectionView?.reloadData()
+        let indexpath = IndexPath(item: 0, section: 0)
+        
+        collectionView.scrollToItem(at: indexpath, at: .bottom, animated: true)
+    }
+    
+    var images = [UIImage]()
+    var selectedImage: UIImage?
+    
+    var assets = [PHAsset]()
     
     fileprivate func assetFetchOptions() -> PHFetchOptions {
         let fetchOptions = PHFetchOptions()
-        fetchOptions.fetchLimit = 28
+        fetchOptions.fetchLimit = 75
         let sortDescriptor = NSSortDescriptor(key: "creationDate", ascending: false)
         fetchOptions.sortDescriptors = [sortDescriptor]
         return fetchOptions
     }
     
-
     fileprivate func fetchPhotos() {
         let allPhotos = PHAsset.fetchAssets(with: .image, options: assetFetchOptions())
         DispatchQueue.global(qos: .background).async {
@@ -178,14 +130,21 @@ class PhotoSelectorController: UIViewController {
                     if let image = image {
                         self.images.append(image)
                         self.assets.append(asset)
+                        
+                        if self.selectedImage == nil {
+                            self.selectedImage = image
+                        }
+                    }
+                    
+                    if count == allPhotos.count - 1 {
+                        DispatchQueue.main.async {
+                            self.collectionView?.reloadData()
+                        }
                     }
                 })
             }
-            self.setupGrid(size: self.images.count)
         }
     }
-    
-    
     
 }
 

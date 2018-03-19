@@ -165,8 +165,9 @@ class DatabaseLayer {
         guard let interested = currentUser.interested else { return }
         let str = interested + "-users"
         
-        Database.database().reference().child(str).queryOrderedByKey().queryLimited(toFirst: 15).observeSingleEvent(of: .value) { (snapshot) in
+        Database.database().reference().child(str).queryOrderedByKey().queryLimited(toLast: 15).observeSingleEvent(of: .value) { (snapshot) in
             if let snapshot = snapshot.children.allObjects as? [DataSnapshot] {
+                firstAutoIdIndex = snapshot.first?.key
                 snapshot.forEach({ (snap) in
                     guard let matchUid = snap.value as? String else { return }
                     //self.getCurrentUserData(uid: matchUid, indexUid: snap.key, completion: completion)
@@ -184,18 +185,24 @@ class DatabaseLayer {
         
         count = 0
         
-        Database.database().reference().child(str).queryOrderedByKey().queryStarting(atValue: indexUid).queryLimited(toFirst: fetchAmount).observeSingleEvent(of: .value) { (snapshot) in
+        Database.database().reference().child(str).queryOrderedByKey().queryEnding(atValue: indexUid).queryLimited(toLast: fetchAmount).observeSingleEvent(of: .value) { (snapshot) in
             if let snapshot = snapshot.children.allObjects as? [DataSnapshot] {
+                firstAutoIdIndex = snapshot.first?.key
+                var previousUid = String()
+                var previousAutoId = String()
                 snapshot.forEach({ (snap) in
-                    if snap.key != indexUid {
+                    guard let uid = snap.value as? String else { return }
+                    if snap.key != indexUid && uid != previousUid {
                         guard let matchUid = snap.value as? String else { return }
+                        previousUid = snap.value as! String
                         //self.getCurrentUserData(uid: matchUid, indexUid: snap.key, completion: completion)
                         self.checkForPreviouslyInteractedWithUser(matchUid: matchUid, indexUid: snap.key, completion: completion)
                     }
                     self.timer?.invalidate()
                     self.timer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: false, block: { (_) in
                         if self.count < 4 {
-                            self.fetchMoreUsersForLoading(indexUid: snap.key, fetchAmount: 15, completion: completion)
+                            guard let firstIndex = firstAutoIdIndex else { return }
+                            self.fetchMoreUsersForLoading(indexUid: firstIndex, fetchAmount: 15, completion: completion)
                         }
                     })
                 })

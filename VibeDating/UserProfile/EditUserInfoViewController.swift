@@ -16,7 +16,7 @@ class EditUserInfoViewController: UIViewController {
     
     let scrollView: UIScrollView = {
         let sv = UIScrollView()
-        sv.backgroundColor = offBlack
+        sv.backgroundColor = offerBlack
         return sv
     }()
     
@@ -53,6 +53,8 @@ class EditUserInfoViewController: UIViewController {
     
     fileprivate func setupImageViews() {
         view.addSubview(scrollView)
+        navigationController?.navigationBar.tintColor = .white
+        navigationController?.navigationBar.barTintColor = .black
         scrollView.anchor(top: view.safeAreaLayoutGuide.topAnchor, left: view.leftAnchor, right: view.rightAnchor, bottom: view.safeAreaLayoutGuide.bottomAnchor, paddingTop: 0, paddingLeft: 0, paddingRight: 0, paddingBottom: 0, width: 0, height: 0)
         scrollView.contentSize = CGSize(width: self.view.frame.width, height: 1000)
         scrollView.addSubview(mainImage)
@@ -106,7 +108,7 @@ class EditUserInfoViewController: UIViewController {
     }
     
     @objc fileprivate func handleAddImage(gesture: UITapGestureRecognizer) {
-        let photoSelector = PhotoSelectorController()
+        let photoSelector = PhotoSelectorController(collectionViewLayout: UICollectionViewFlowLayout())
         guard let imageView = gesture.view as? UIImageView else { return }
         selectedImageView = imageView
         let navController = UINavigationController(rootViewController: photoSelector)

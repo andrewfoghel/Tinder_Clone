@@ -8,6 +8,8 @@
 
 import UIKit
 
+var firstAutoIdIndex: String?
+
 class MatchingViewController: UIViewController {
     
     var cellId = "cell"
@@ -15,10 +17,31 @@ class MatchingViewController: UIViewController {
     
     var colors = [UIColor]()
     
+    
+    let profileImageView = RoundImageView(color: .clear, cornerRadius: 50)
     fileprivate func setupViews() {
-        
+        view.backgroundColor = offerBlack
+        view.addSubview(profileImageView)
+        profileImageView.anchor(top: nil, left: nil, right: nil, bottom: nil, paddingTop: 0, paddingLeft: 0, paddingRight: 0, paddingBottom: 0, width: 100, height: 100)
+        profileImageView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleAddPulse)))
+        guard let url = currentUser.profileImageUrl else { return }
+        profileImageView.loadImage(urlString: url)
+        profileImageView.centerXAnchor.constraint(equalTo: self.view.centerXAnchor).isActive = true
+        profileImageView.centerYAnchor.constraint(equalTo: self.view.centerYAnchor).isActive = true
     }
     
+    @objc fileprivate func handleAddPulse(gesture: UITapGestureRecognizer) {
+        let pulse = Pulsing(numberOfPulses: 1, radius: 150, position: self.view.center)
+        pulse.animationDuration = 0.8
+        pulse.backgroundColor = UIColor.lightGray.cgColor
+        
+        self.view.layer.insertSublayer(pulse, below: profileImageView.layer)
+        self.profileImageView.isUserInteractionEnabled = false
+        Timer.scheduledTimer(withTimeInterval: 1, repeats: false) { (_) in
+            self.getMatchesData()
+        }
+    }
+
     var cardTimer: Timer?
     fileprivate func getMatchesData() {
         
@@ -36,8 +59,8 @@ class MatchingViewController: UIViewController {
             self.cardTimer?.invalidate()
             self.cardTimer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: false, block: { (_) in
                 if self.cards.count < 4 {
-                    guard let indexUid = indexUid else { return }
-                    DatabaseLayer.shared.fetchMoreUsersForLoading(indexUid: indexUid, fetchAmount: 15, completion: { (user, indexUid, error) in
+                    guard let indexuid = firstAutoIdIndex else { return }
+                    DatabaseLayer.shared.fetchMoreUsersForLoading(indexUid: indexuid, fetchAmount: 15, completion: { (user, indexUid, error) in
                         if let err = error {
                             print(err.localizedDescription)
                             return
@@ -46,63 +69,51 @@ class MatchingViewController: UIViewController {
                         if let user = user {
                             self.createDynamicImageViewsForMatches(user: user)
                         }
-                        
                     })
                 }
+                self.profileImageView.isUserInteractionEnabled = true
             })
         }
     }
-
-//        DatabaseLayer.shared.getUsersToMatchData { (user, indexUid, error)  in
-//            if let err = error {
-//                print(err.localizedDescription)
-//                return
-//            }
-//
-//            if let user = user {
-//                self.createDynamicImageViewsForMatches(user: user)
-//            }
-//
-//            self.cardTimer?.invalidate()
-//            self.cardTimer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: false, block: { (_) in
-//                if self.cards.count < 4 {
-//                    guard let indexUid = user?.autoIdIndex else { return }
-//                    DatabaseLayer.shared.fetchMoreUsersForLoading(indexUid: indexUid, fetchAmount: 5, completion: { (user, error) in
-//                        if let err = error {
-//                            print(err.localizedDescription)
-//                            return
-//                        }
-//                        if let user = user {
-//                            self.createDynamicImageViewsForMatches(user: user)
-//                        }
-//                    })
-//                }
-//            })
-//        }
-    
-    
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .purple
         setupViews()
         getMatchesData()
-        
     }
     
     func createDynamicImageViewsForMatches(user: MyUser) {
-            let imageView = RoundImageView(color: .clear, cornerRadius: 10)
-            imageView.frame = CGRect(x: 10, y: self.view.frame.midY - self.view.frame.height/2.8, width: self.view.frame.width - 20, height: self.view.frame.height/1.4)
-            imageView.contentMode = .scaleAspectFill
-            guard let url = user.profileImageUrl else { return }
-            imageView.loadImage(urlString: url)
-            imageView.user = user
-            imageView.addGestureRecognizer(UIPanGestureRecognizer(target: self, action: #selector(handleImagePan)))
-            imageView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleImageTap)))
-            cards.append(imageView)
-            print("\(cards.count - 1) : \(user.name)")
-            view.addSubview(imageView)
-            view.sendSubview(toBack: imageView)
+        let nameAgeLabel: UILabel = {
+            let lbl = UILabel()
+            lbl.font = UIFont.systemFont(ofSize: 20)
+            if let name = user.name{
+                lbl.text = name
+            }
+            lbl.textColor = .white
+            lbl.backgroundColor = .clear
+            lbl.layer.shadowColor = UIColor.black.cgColor
+            lbl.layer.shadowRadius = 2.0
+            lbl.layer.shadowOpacity = 0.7
+            lbl.layer.shadowOffset = CGSize(width: 0, height: 0)
+            lbl.layer.masksToBounds = false
+            return lbl
+        }()
+        
+        let imageView = RoundImageView(color: .clear, cornerRadius: 10)
+        imageView.frame = CGRect(x: 10, y: self.view.frame.midY - self.view.frame.height/2.8, width: self.view.frame.width - 20, height: self.view.frame.height/1.4)
+        imageView.contentMode = .scaleAspectFill
+        guard let url = user.profileImageUrl else { return }
+        imageView.loadImage(urlString: url)
+        imageView.addSubview(nameAgeLabel)
+        nameAgeLabel.frame = CGRect(x: 8, y: imageView.frame.height - 40, width: imageView.frame.width, height: 30)
+        imageView.user = user
+        imageView.addGestureRecognizer(UIPanGestureRecognizer(target: self, action: #selector(handleImagePan)))
+        imageView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleImageTap)))
+        cards.append(imageView)
+        print("\(cards.count - 1) : \(user.name)")
+        view.addSubview(imageView)
+        view.sendSubview(toBack: imageView)
+        view.sendSubview(toBack: profileImageView)
     }
     
     let alphaView = UIView()
@@ -281,12 +292,12 @@ class MatchingViewController: UIViewController {
             interestView.alpha = 1
         }
     }
-    
-    
+
     fileprivate func postMatchLikeToFirebase(matchUid: String) {
         cards.remove(at: 0)
+        
         if cards.count == 3 {
-            guard let indexUid = cards[0].user.autoIdIndex else { return }
+            guard let indexUid = firstAutoIdIndex else { return }
             DatabaseLayer.shared.fetchMoreUsersForLoading(indexUid: indexUid, fetchAmount: 13, completion: { (user, _, error) in
                 if let err = error {
                     print(err.localizedDescription)
@@ -297,22 +308,6 @@ class MatchingViewController: UIViewController {
                 self.createDynamicImageViewsForMatches(user: user)
             })
         }
-      //  guard let indexUid = users[self.users.count - 1].uid else { return }
-//       if tag == 3 {
-//            var tag = 0
-//            DatabaseLayer.shared.fetchMoreUsersForLoading(indexUid: indexUid, completion: { (user, error) in
-//                if let err = error {
-//                    print(err.localizedDescription)
-//                    return
-//                }
-//
-//                guard let user = user else { return }
-//                self.users.append(user)
-//                print("\(tag) : \(user.name) : \(user.uid)")
-//                self.createDynamicImageViewsForMatches(user: user, tag: tag)
-//                tag += 1
-//            })
-    //    }
         
         DatabaseLayer.shared.saveUserLikeData(matchUid: matchUid) { (user, error) in
             if let err = error {
@@ -327,8 +322,9 @@ class MatchingViewController: UIViewController {
     
     fileprivate func postMatchDislikeToFirebase(matchUid: String) {
         cards.remove(at: 0)
+        
         if cards.count == 3 {
-            guard let indexUid = cards[0].user.autoIdIndex else { return }
+            guard let indexUid = firstAutoIdIndex else { return }
             DatabaseLayer.shared.fetchMoreUsersForLoading(indexUid: indexUid, fetchAmount: 13, completion: { (user, _, error) in
                 if let err = error {
                     print(err.localizedDescription)
