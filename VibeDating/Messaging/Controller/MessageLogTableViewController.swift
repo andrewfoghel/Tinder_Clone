@@ -47,7 +47,7 @@ class MessageLogTableViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = offBlack
+        view.backgroundColor = offerBlack
         messages.removeAll()
         messagesDictionary.removeAll()
         setupViews()

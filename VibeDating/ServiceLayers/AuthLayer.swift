@@ -16,11 +16,11 @@ class AuthLayer {
         return Auth.auth().currentUser ?? nil
     }
     
-    func createUser(email: String, password: String, name: String, image: UIImage, gender: String, interested: String, birthday: String, completion: @escaping (Bool) -> ()) {
+    func createUser(email: String, password: String, name: String, image: UIImage, gender: String, interested: String, birthday: String, completion: @escaping (Bool, Error?) -> ()) {
         Auth.auth().createUser(withEmail: email, password: password) { (user, error) in
             if let err = error {
                 print("There was an error creating the user: ", err.localizedDescription)
-                completion(false)
+                completion(false, err)
                 return
             }
             
@@ -29,14 +29,14 @@ class AuthLayer {
             StorageLayer.shared.saveImage(folderPath: "profile_images", image: image, completion: { (downloadUrl, error) in
                 if let err = error {
                     print("Error Saving Profile Image: ", err.localizedDescription)
+                    completion(false, err)
                     return
                 }
                 
                 guard let url = downloadUrl else { return }
                 currentUser = MyUser(uid: user.uid, name: name, email: email, profileImageUrl: url, gender: gender, interested: interested, birthday: birthday)
                 DatabaseLayer.shared.saveUserData(user: currentUser)
-                DatabaseLayer.shared.saveUserDatingImage(image: image)
-                completion(true)
+                completion(true, nil)
             })
         }
     }

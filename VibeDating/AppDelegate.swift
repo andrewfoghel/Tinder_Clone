@@ -1,4 +1,4 @@
-//
+        //
 //  AppDelegate.swift
 //  VibeDating
 //
@@ -14,26 +14,65 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     var window: UIWindow?
 
-
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
 
         FirebaseApp.configure()
+        
 //        do {
 //            try Auth.auth().signOut()
 //            print("logged out")
 //        } catch {
-//
+//            
 //        }
-        
         
         window = UIWindow(frame: UIScreen.main.bounds)
         let mainPageVC = MainPagationController()
         window!.rootViewController = mainPageVC
         window!.makeKeyAndVisible()
         
-        
-        
         return true
+    }
+    
+    var errorViewIsShowing = false
+    func errorView(message: String, color: UIColor) {
+        if !errorViewIsShowing {
+            errorViewIsShowing = true
+            
+            let errorViewHeight = self.window!.bounds.height / 10
+            let errorViewYOrigin = -errorViewHeight
+            let errorView = UIView(frame: CGRect(x: 0, y: errorViewYOrigin, width: self.window!.bounds.width, height: errorViewHeight))
+            errorView.backgroundColor = color
+            self.window!.addSubview(errorView)
+            
+            let errorLabelWidth = errorView.bounds.width
+            let errorLabelHeight = errorView.bounds.height + UIApplication.shared.statusBarFrame.height / 2
+            let errorLabel = UILabel()
+            errorLabel.frame.size.width = errorLabelWidth
+            errorLabel.frame.size.height = errorLabelHeight
+            errorLabel.textColor = .white
+            errorLabel.text = message
+            errorLabel.numberOfLines = 0
+            errorLabel.font = UIFont(name: "Marker Felt", size: 12)
+            errorLabel.textAlignment = .center
+            
+            errorView.addSubview(errorLabel)
+            
+            UIView.animate(withDuration: 0.2, animations: {
+                errorView.frame.origin.y = 0
+            }, completion: { (finished) in
+                if finished {
+                    UIView.animate(withDuration: 0.2, delay: 3, options: .curveLinear, animations: {
+                        errorView.frame.origin.y = errorViewYOrigin
+                    }, completion: { (finished) in
+                        if finished {
+                            errorView.removeFromSuperview()
+                            errorLabel.removeFromSuperview()
+                            self.errorViewIsShowing = false
+                        }
+                    })
+                }
+            })
+        }
     }
 
     func applicationWillResignActive(_ application: UIApplication) {

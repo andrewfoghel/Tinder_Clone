@@ -13,6 +13,9 @@ class PhotoSelectorController: UICollectionViewController, UICollectionViewDeleg
     let cellId = "cellId"
     let headerId = "headerId"
     
+    var editUserInfoViewController: EditUserInfoViewController?
+    var signUpViewController: SignUpViewController?
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = offerBlack
@@ -20,7 +23,18 @@ class PhotoSelectorController: UICollectionViewController, UICollectionViewDeleg
         collectionView?.register(ImageViewCollectionViewCell.self, forCellWithReuseIdentifier: cellId)
         collectionView?.register(PhotoSelectorHeader.self, forSupplementaryViewOfKind: UICollectionElementKindSectionHeader, withReuseIdentifier: headerId)
         setupNavigationButtons()
-        fetchPhotos()
+        let photos = PHPhotoLibrary.authorizationStatus()
+        if photos == .notDetermined {
+            PHPhotoLibrary.requestAuthorization({ (status) in
+                if status == .authorized {
+                   self.fetchPhotos()
+                } else {
+                    //Some alert controller perhaps
+                }
+            })
+        } else {
+            self.fetchPhotos()
+        }
     }
     
     override var prefersStatusBarHidden: Bool {
@@ -39,7 +53,57 @@ class PhotoSelectorController: UICollectionViewController, UICollectionViewDeleg
     }
     
     @objc func handleSave() {
-        selectedImageView.image = header?.photoImageView.image
+        
+        guard let image = header?.photoImageView.image else { return }
+        
+        if let editVC = self.editUserInfoViewController {
+            if editVC.isBeingReplaced {
+                guard let userImage = editVC.cellToManipulate.userImage else { return }
+                DatabaseLayer.shared.updateUserImage(imageIndexId: userImage.id, image: image, isProfileImage: editVC.isProfileImage, completion: { (downloadUrl, error) in
+                    if let err = error {
+                        print(err.localizedDescription)
+                        return
+                    }
+                    
+                   
+                    editVC.mainImageView.image = image
+                    guard let url = downloadUrl else { return }
+//                    editVC.cellToManipulate.imageView.loadImage(urlString: url)
+                    editVC.imageUrls[editVC.index].url = url
+//                    editVC.cellToManipulate.userImage?.url = url
+                    editVC.cells.removeAll()
+                    editVC.collectionView.isUserInteractionEnabled = false
+                    editVC.collectionView.setContentOffset(.zero, animated: true)
+                    editVC.collectionView.isUserInteractionEnabled = true
+              //      editVC.cells.removeAll()
+                    editVC.collectionView.reloadData()
+                })
+                
+//                editVC.cellToManipulate.imageView.image = image
+//                editVC.mainImageView.image = image
+//                editVC.imageUrls[editVC.index].url =
+            } else {
+                DatabaseLayer.shared.saveUserDatingImage(image: image, completion: { (userImage, error) in
+                    if let err = error {
+                        print(err.localizedDescription)
+                        return
+                    }
+                    
+                    guard let img = userImage else { return }
+                    editVC.imageUrls.append(img)
+                    editVC.cells.removeAll()
+                    editVC.collectionView.isUserInteractionEnabled = false
+                    editVC.collectionView.setContentOffset(.zero, animated: true)
+                    editVC.collectionView.isUserInteractionEnabled = true
+                    editVC.collectionView.reloadData()
+                    
+                })
+            }
+        }
+        
+     //   DatabaseLayer.shared.saveUserDatingImage(image: image)
+
+   //     selectedImageView.image = header?.photoImageView.image
         self.dismiss(animated: true, completion: nil)
     }
     

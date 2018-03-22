@@ -14,6 +14,8 @@ var currentCoordinate = CLLocationCoordinate2D()
 class MainPagationController: UIPageViewController, UIPageViewControllerDelegate, UIPageViewControllerDataSource {
     
     let locationManager = CLLocationManager()
+ //   var currentIndex = 1
+    
     override var preferredStatusBarStyle: UIStatusBarStyle {
         return .lightContent
     }
@@ -33,6 +35,7 @@ class MainPagationController: UIPageViewController, UIPageViewControllerDelegate
     func pageViewController(_ pageViewController: UIPageViewController, viewControllerBefore viewController: UIViewController) -> UIViewController? {
         guard let viewControllerIndex = orderedViewControllers.index(of: viewController) else { return nil }
         let prevIndex = viewControllerIndex - 1
+  //      currentIndex = viewControllerIndex
         guard prevIndex >= 0 else { return nil }
         guard orderedViewControllers.count > prevIndex else { return nil }
         
@@ -42,16 +45,22 @@ class MainPagationController: UIPageViewController, UIPageViewControllerDelegate
     func pageViewController(_ pageViewController: UIPageViewController, viewControllerAfter viewController: UIViewController) -> UIViewController? {
         guard let viewControllerIndex = orderedViewControllers.index(of: viewController) else { return nil }
         let nextIndex = viewControllerIndex + 1
+  //      currentIndex = viewControllerIndex
         guard orderedViewControllers.count != nextIndex else { return nil }
         guard orderedViewControllers.count > nextIndex else { return nil }
-    
+        
         return orderedViewControllers[nextIndex]
     }
     
-    
     override func viewDidLoad() {
         super.viewDidLoad()
-
+        
+        for view in self.view.subviews {
+            if let scrollView = view as? UIScrollView {
+                scrollView.delegate = self
+            }
+        }
+        
         if AuthLayer.shared.myUser == nil {
             DispatchQueue.main.async {
                 let loginVC = LoginViewController()
@@ -78,6 +87,7 @@ class MainPagationController: UIPageViewController, UIPageViewControllerDelegate
                 self.locationManager.desiredAccuracy = kCLLocationAccuracyBest
                 self.locationManager.startUpdatingLocation()
             }
+            
             self.attemptSetNewCoordinates()
             self.setupControllersForPage()
         }
@@ -114,3 +124,37 @@ extension MainPagationController: CLLocationManagerDelegate {
         DatabaseLayer.shared.saveUserLocation(lat: coordinates.latitude, lon: coordinates.longitude)
     }
 }
+
+extension MainPagationController: UIScrollViewDelegate {
+    
+//    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+//        if currentIndex == 0 || scrollView.contentOffset.x < scrollView.bounds.size.width {
+//            scrollView.bounces = false
+//        } else if currentIndex == 2 || scrollView.contentOffset.x > scrollView.bounds.size.width {
+//            scrollView.bounces = false
+//        }
+//    }
+//
+//    func scrollViewDidEndScrollingAnimation(_ scrollView: UIScrollView) {
+//         scrollView.bounces = true
+//    }
+
+    
+//    private func scrollViewDidEndDragging(_ scrollView: UIScrollView, withVelocity velocity: CGPoint, targetContentOffset: UnsafeMutablePointer<CGPoint>) {
+//        if currentIndex == 0 && scrollView.contentOffset.x > scrollView.bounds.size.width {
+//            scrollView.bounces = true
+//           // scrollView.contentOffset = CGPoint(x: scrollView.bounds.size.width, y: 0)
+//        } else if currentIndex == 2 && scrollView.contentOffset.x > scrollView.bounds.size.width {
+//            scrollView.bounces = true
+//           // scrollView.contentOffset = CGPoint(x: scrollView.bounds.size.width, y: 0)
+//        } else {
+//            scrollView.bounces = true
+//        }
+//    }
+    
+   
+    
+    
+}
+
+

@@ -39,6 +39,23 @@ class DatabaseLayer {
                 return
             }
         })
+
+        if let url = user.profileImageUrl {
+            Database.database().reference().child("user-images").child(uid).childByAutoId().setValue(user.profileImageUrl, withCompletionBlock: { (error, _) in
+                if let err = error {
+                    print(err.localizedDescription)
+                    return
+                }
+            })
+            
+            Database.database().reference().child("users").child(uid).child("profileImageUrl").setValue(user.profileImageUrl, withCompletionBlock: { (error, _) in
+                if let err = error {
+                    print(err.localizedDescription)
+                    return
+                }
+            })
+            
+        }
     }
     
     func saveUserLocation(lat: Double, lon: Double) {
@@ -58,13 +75,24 @@ class DatabaseLayer {
             if let dictionary = snapshot.value as? [String : Any] {
                 user = MyUser(key: snapshot.key, dictionary: dictionary)
                 if let autoIndexUid = indexUid {
-                    user?.autoIdIndex = indexUid
+                    user?.autoIdIndex = autoIndexUid
                 }
                 completion(user, nil)
             }
         }) { (err) in
             print("Error fetching user data: ", err.localizedDescription)
             completion(nil, err)
+        }
+    }
+    
+    func setProfileImageObserver(completion: @escaping (String?, Error?) -> ()) {
+        guard let uid = currentUser.uid else { return }
+        Database.database().reference().child("users").child(uid).child("profileImageUrl").observe(.value, with: { (snapshot) in
+            guard let url = snapshot.value as? String else { return }
+            completion(url, nil)
+        }) { (error) in
+            print(error.localizedDescription)
+            completion(nil, error)
         }
     }
     
@@ -78,13 +106,13 @@ class DatabaseLayer {
             if let dictionary = snapshot.value as? [String : Any] {
                 user = MyUser(key: snapshot.key, dictionary: dictionary)
                 if let autoIndexUid = indexUid {
-                    user?.autoIdIndex = indexUid
+                    user?.autoIdIndex = autoIndexUid
                 }
                 guard let user = user else { return }
                 
-                guard let userLat = user.lat, let userLon = user.lon else { return }
-                let currentUserLocation = CLLocation(latitude: currentCoordinate.latitude, longitude: currentCoordinate.longitude)
-                let userLocation = CLLocation(latitude: userLat, longitude: userLon)
+               // guard let userLat = user.lat, let userLon = user.lon else { return }
+               // let currentUserLocation = CLLocation(latitude: currentCoordinate.latitude, longitude: currentCoordinate.longitude)
+               // let userLocation = CLLocation(latitude: userLat, longitude: userLon)
                 if user.interested == currentUser.gender && user.gender == currentUser.interested /*&& currentUserLocation.distance(from: userLocation) < 16093.4 TEN MILE RADIUS MATCH*/{
                     //Handle Age here as well
                     self.count += 1
@@ -98,45 +126,122 @@ class DatabaseLayer {
     }
     
 
-    func saveUserDatingImage(image: UIImage) {
+    func saveUserDatingImage(image: UIImage, completion: @escaping (UserImage?, Error?) -> ()) {
         StorageLayer.shared.saveImage(folderPath: "dating_profile_images", image: image) { (downloadUrl, error) in
             if let err = error {
                 print("Error Saving additional profile image: ", err.localizedDescription)
+                completion(nil, err)
                 return
             }
             
             //Save user image here
             guard let url = downloadUrl else { return }
             guard let uid = currentUser.uid else { return }
-            let values: [String : Any] = ["\(selectedImageView.tag)" : url]
             
-            if selectedImageView.tag == 0 {
-                guard let uid = currentUser.uid else { return }
+            Database.database().reference().child("user-images").child(uid).childByAutoId().setValue(url, withCompletionBlock: { (error, ref) in
+                if let err = error {
+                    print(err.localizedDescription)
+                    return
+                }
+            
+                let userImage = UserImage(id: ref.key, url: url)
+                completion(userImage, nil)
+                
+            })
+        }
+    }
+    
+    func deleteUserDatingImage(imageIndexId: String, isProfileImage: Bool) {
+        guard let uid = currentUser.uid else { return }
+        Database.database().reference().child("user-images").child(uid).child(imageIndexId).removeValue { (error, _) in
+            if let err = error {
+                print(err.localizedDescription)
+                return
+            }
+            
+            if isProfileImage == true {
+                Database.database().reference().child("user-images").child(uid).queryOrderedByKey().queryLimited(toFirst: 1).observeSingleEvent(of: .value, with: { (snapshot) in
+                    print(snapshot.value)
+                    if let dictionary = snapshot.value as? [String : Any] {
+                        guard let url = dictionary.first?.value as? String else { return }
+                        currentUser.profileImageUrl = url
+                        Database.database().reference().child("users").child(uid).child("profileImageUrl").setValue(url, withCompletionBlock: { (error, _) in
+                            if let err = error {
+                                print(err.localizedDescription)
+                                return
+                            }
+                        })
+                    }
+                })
+            }
+        }
+    }
+    
+    func updateUserImage(imageIndexId: String, image: UIImage, isProfileImage: Bool, completion: @escaping (String?, Error?) -> ()) {
+        guard let uid = currentUser.uid else { return }
+        StorageLayer.shared.saveImage(folderPath: "dating_profile_images", image: image) { (downloadUrl, error) in
+            if let err = error {
+                print(err.localizedDescription)
+                completion(nil, error)
+                return
+            }
+            
+            guard let url = downloadUrl else { return }
+            
+            if isProfileImage == true {
                 Database.database().reference().child("users").child(uid).child("profileImageUrl").setValue(url, withCompletionBlock: { (error, _) in
                     if let err = error {
                         print(err.localizedDescription)
                         return
                     }
+                    currentUser.profileImageUrl = url
+                    completion(url, nil)
                 })
             }
             
-            Database.database().reference().child("user-images").child(uid).updateChildValues(values, withCompletionBlock: { (error, _) in
+            Database.database().reference().child("user-images").child(uid).child(imageIndexId).setValue(url, withCompletionBlock: { (error, _) in
                 if let err = error {
                     print(err.localizedDescription)
                     return
                 }
+                completion(url, nil)
             })
+        }
+    }
+    
+    func getCurrentUserImages(completion: @escaping (UserImage?, Error?) -> ()) {
+        guard let uid = currentUser.uid else { return }
+        Database.database().reference().child("user-images").child(uid).observeSingleEvent(of: .value, with: { (snapshot) in
+            if let snapshot = snapshot.children.allObjects as? [DataSnapshot] {
+                snapshot.forEach({ (snap) in
+                    guard let url = snap.value as? String else { return }
+                    let userImage = UserImage(id: snap.key, url: url)
+                    completion(userImage, nil)
+                })
+            }
+//            guard let url = snapshot.value as? String else { return }
+//            let userImage = UserImage(id: snapshot.key, url: url)
+//            completion(userImage, nil)
+        }) { (error) in
+            completion(nil, error)
         }
     }
     
     func getUserImages(uid: String, completion: @escaping ([String : String]?, Error?) -> ()) {
         Database.database().reference().child("user-images").child(uid).observeSingleEvent(of: .value, with: { (snapshot) in
             if let snapshot = snapshot.children.allObjects as? [DataSnapshot] {
-                for snap in snapshot {
-                    let value = [snap.key : snap.value as! String]
-                    completion(value, nil)
-                }
+                snapshot.forEach({ (snap) in
+                    guard let url = snap.value as? String else { return }
+                    var dictionary = [snap.key : url]
+                    completion(dictionary, nil)
+                })
             }
+//            if let snapshot = snapshot.children.allObjects as? [DataSnapshot] {
+//                for snap in snapshot {
+//                    let value = [snap.key : snap.value as! String]
+//                    completion(value, nil)
+//                }
+//            }
         }) { (error) in
             completion(nil, error)
             print(error.localizedDescription)
@@ -170,7 +275,6 @@ class DatabaseLayer {
                 firstAutoIdIndex = snapshot.first?.key
                 snapshot.forEach({ (snap) in
                     guard let matchUid = snap.value as? String else { return }
-                    //self.getCurrentUserData(uid: matchUid, indexUid: snap.key, completion: completion)
                     self.checkForPreviouslyInteractedWithUser(matchUid: matchUid, indexUid: snap.key, completion: completion)
                 })
             }
@@ -188,19 +292,18 @@ class DatabaseLayer {
         Database.database().reference().child(str).queryOrderedByKey().queryEnding(atValue: indexUid).queryLimited(toLast: fetchAmount).observeSingleEvent(of: .value) { (snapshot) in
             if let snapshot = snapshot.children.allObjects as? [DataSnapshot] {
                 firstAutoIdIndex = snapshot.first?.key
+                
                 var previousUid = String()
-                var previousAutoId = String()
                 snapshot.forEach({ (snap) in
                     guard let uid = snap.value as? String else { return }
                     if snap.key != indexUid && uid != previousUid {
                         guard let matchUid = snap.value as? String else { return }
                         previousUid = snap.value as! String
-                        //self.getCurrentUserData(uid: matchUid, indexUid: snap.key, completion: completion)
                         self.checkForPreviouslyInteractedWithUser(matchUid: matchUid, indexUid: snap.key, completion: completion)
                     }
                     self.timer?.invalidate()
                     self.timer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: false, block: { (_) in
-                        if self.count < 4 {
+                        if self.count < 4 && firstAutoIdIndex != snapshot.last?.key {
                             guard let firstIndex = firstAutoIdIndex else { return }
                             self.fetchMoreUsersForLoading(indexUid: firstIndex, fetchAmount: 15, completion: completion)
                         }
@@ -214,7 +317,7 @@ class DatabaseLayer {
         guard let uid = currentUser.uid else { return }
         
         Database.database().reference().child("user-match-ref").child(uid).child(matchUid).observeSingleEvent(of: .value) { (snapshot) in
-            if let value = snapshot.value as? Int {
+            if let _ = snapshot.value as? Int {
                 self.getUserDataOrAutoUid(uid: nil, indexUid: indexUid, completion: completion)
             } else {
                 self.getUserDataOrAutoUid(uid: matchUid, indexUid: indexUid, completion: completion)

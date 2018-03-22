@@ -71,7 +71,7 @@ class MatchedUserInfoViewController: UIViewController {
     
     fileprivate func setupViews() {
         view.addSubview(collectionView)
-        collectionView.anchor(top: view.safeAreaLayoutGuide.topAnchor, left: view.leftAnchor, right: view.rightAnchor, bottom: nil, paddingTop: 0, paddingLeft: 0, paddingRight: 0, paddingBottom: 0, width: 0, height: self.view.frame.width)
+        collectionView.anchor(top: view.safeAreaLayoutGuide.topAnchor, left: view.leftAnchor, right: view.rightAnchor, bottom: nil, paddingTop: 0, paddingLeft: 0, paddingRight: 0, paddingBottom: 0, width: 0, height: self.view.frame.height / 2.165)
         collectionView.delegate = self
         collectionView.dataSource = self
         collectionView.scrollIndicatorInsets = UIEdgeInsets(top: 0, left: 0, bottom: self.view.frame.width - 10, right: 0)

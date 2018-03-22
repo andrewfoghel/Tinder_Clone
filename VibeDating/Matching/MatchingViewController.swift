@@ -15,8 +15,7 @@ class MatchingViewController: UIViewController {
     var cellId = "cell"
     var cards = [RoundImageView]()
     
-    var colors = [UIColor]()
-    
+    var colors = [UIColor]() 
     
     let profileImageView = RoundImageView(color: .clear, cornerRadius: 50)
     fileprivate func setupViews() {
@@ -51,7 +50,6 @@ class MatchingViewController: UIViewController {
                 return
             }
             
-            var creation = 0.0
             if let user = user {
                 self.createDynamicImageViewsForMatches(user: user)
             }
@@ -76,11 +74,24 @@ class MatchingViewController: UIViewController {
         }
     }
     
+    fileprivate func setupProfileImageObserver() {
+        DatabaseLayer.shared.setProfileImageObserver { (downloadUrl, error) in
+            if let err = error {
+                print(err.localizedDescription)
+                return
+            }
+            guard let url = downloadUrl else { return }
+            self.profileImageView.loadImage(urlString: url)
+        }
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         setupViews()
         getMatchesData()
+        setupProfileImageObserver()
     }
+    
     
     func createDynamicImageViewsForMatches(user: MyUser) {
         let nameAgeLabel: UILabel = {
@@ -110,7 +121,7 @@ class MatchingViewController: UIViewController {
         imageView.addGestureRecognizer(UIPanGestureRecognizer(target: self, action: #selector(handleImagePan)))
         imageView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleImageTap)))
         cards.append(imageView)
-        print("\(cards.count - 1) : \(user.name)")
+        print("\(cards.count - 1) : \(user.name ?? "")")
         view.addSubview(imageView)
         view.sendSubview(toBack: imageView)
         view.sendSubview(toBack: profileImageView)
@@ -246,14 +257,14 @@ class MatchingViewController: UIViewController {
     
     @objc func handleDismissInterestView(gesture: UITapGestureRecognizer) {
         guard let view = gesture.view else { return }
-        var size: CGFloat = 90
+//        var size: CGFloat = 90
 //        self.currentUserImage.frame = CGRect(x: view.center.x - 2 * size, y: view.center.y - size/2, width: size, height: size)
 //        self.matchUserImage.frame = CGRect(x: self.view.center.x, y: self.view.center.y, width: size, height: size)
         self.currentUserImage.removeFromSuperview()
         self.matchUserImage.removeFromSuperview()
         UIView.animate(withDuration: 0.3, animations: {
             view.frame = CGRect(x: view.center.x, y: view.center.y, width: 1, height: 1)
-            size = 1
+        //    size = 1
         }) { (_) in
             view.removeFromSuperview()
         }

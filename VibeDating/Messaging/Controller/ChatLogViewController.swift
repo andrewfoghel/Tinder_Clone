@@ -47,6 +47,7 @@ class ChatLogCollectionViewController: UIViewController {
     var bottomConstraint = NSLayoutConstraint()
     var textViewHeightConstraint = NSLayoutConstraint()
     var containerViewHeightConstraint = NSLayoutConstraint()
+    
     fileprivate func setupViews() {
         view.addSubview(collectionView)
         view.addSubview(inputContainer)
@@ -65,8 +66,6 @@ class ChatLogCollectionViewController: UIViewController {
         inputContainer.inputTextView.delegate = self
         bottomConstraint = inputContainer.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: 0)
         bottomConstraint.isActive = true
-        
-        
         
         let fillerView = UIView()
         fillerView.backgroundColor = inputContainer.backgroundColor
