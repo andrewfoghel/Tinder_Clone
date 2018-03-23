@@ -353,8 +353,7 @@ class SignUpViewController: UIViewController {
     
     @objc fileprivate func handleAddImage(gesture: UITapGestureRecognizer) {
         let photoSelector = PhotoSelectorController(collectionViewLayout: UICollectionViewFlowLayout())
-        guard let imageView = gesture.view as? UIImageView else { return }
-        selectedImageView = imageView
+        photoSelector.signUpViewController = self
         let navController = UINavigationController(rootViewController: photoSelector)
         present(navController, animated: true, completion: nil)
     }

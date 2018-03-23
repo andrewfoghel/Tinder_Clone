@@ -78,7 +78,6 @@ class PhotoSelectorController: UICollectionViewController, UICollectionViewDeleg
               //      editVC.cells.removeAll()
                     editVC.collectionView.reloadData()
                 })
-                
 //                editVC.cellToManipulate.imageView.image = image
 //                editVC.mainImageView.image = image
 //                editVC.imageUrls[editVC.index].url =
@@ -99,7 +98,12 @@ class PhotoSelectorController: UICollectionViewController, UICollectionViewDeleg
                     
                 })
             }
+        } else if let signUpVC = signUpViewController {
+            signUpVC.profileImageView.image = image
+            signUpViewController = nil
         }
+        
+        
         
      //   DatabaseLayer.shared.saveUserDatingImage(image: image)
 
