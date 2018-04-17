@@ -102,6 +102,7 @@ class DatabaseLayer {
             completion(nil, indexUid, nil)
             return
         }
+        
         Database.database().reference().child("users").child(uid).observeSingleEvent(of: .value, with: { (snapshot) in
             if let dictionary = snapshot.value as? [String : Any] {
                 user = MyUser(key: snapshot.key, dictionary: dictionary)

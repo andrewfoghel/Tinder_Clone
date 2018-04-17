@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0B040FA82085415A0041082C /* CurvedContainerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B040FA72085415A0041082C /* CurvedContainerView.swift */; };
 		0B13EBE82060314400745ED1 /* PhotoSelectorHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B13EBE72060314400745ED1 /* PhotoSelectorHeader.swift */; };
 		0B13EBEA20604B3300745ED1 /* PulsingAnimation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B13EBE920604B3300745ED1 /* PulsingAnimation.swift */; };
 		0B1A199520583BDD00C45B54 /* ImageViewCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B1A199420583BDD00C45B54 /* ImageViewCollectionViewCell.swift */; };
@@ -41,6 +42,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		0B040FA72085415A0041082C /* CurvedContainerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CurvedContainerView.swift; sourceTree = "<group>"; };
 		0B13EBE72060314400745ED1 /* PhotoSelectorHeader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoSelectorHeader.swift; sourceTree = "<group>"; };
 		0B13EBE920604B3300745ED1 /* PulsingAnimation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PulsingAnimation.swift; sourceTree = "<group>"; };
 		0B1A199420583BDD00C45B54 /* ImageViewCollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageViewCollectionViewCell.swift; sourceTree = "<group>"; };
@@ -210,6 +212,7 @@
 				0B1D41A4204C9ACE0031102F /* UserProfileViewController.swift */,
 				0B85B49120560FB80056C489 /* EditUserInfoViewController.swift */,
 				0B2586E5206330E400132F52 /* UserImage.swift */,
+				0B040FA72085415A0041082C /* CurvedContainerView.swift */,
 			);
 			path = UserProfile;
 			sourceTree = "<group>";
@@ -414,6 +417,7 @@
 				0B41DFE2204B83DA0097BD3C /* AppDelegate.swift in Sources */,
 				0BDA2C1F2058D5480041ADB2 /* ChatMessageCell.swift in Sources */,
 				0B13EBEA20604B3300745ED1 /* PulsingAnimation.swift in Sources */,
+				0B040FA82085415A0041082C /* CurvedContainerView.swift in Sources */,
 				0B1D41A7204C9C5F0031102F /* MatchingViewController.swift in Sources */,
 				0B1D41A5204C9ACE0031102F /* UserProfileViewController.swift in Sources */,
 				0BDA2C1D2058C5C90041ADB2 /* UserCell.swift in Sources */,

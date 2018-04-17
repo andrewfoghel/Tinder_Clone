@@ -37,9 +37,65 @@ class ChatLogCollectionViewController: UIViewController {
         return cv
     }()
     
+//    @objc fileprivate func handleProfileImageClick() {
+//        let matchedUserInfoViewController = MatchedUserInfoViewController()
+//        matchedUserInfoViewController.user = selectedUser
+//        self.present(matchedUserInfoViewController, animated: true, completion: nil)
+//    }
+//
+//    func getUser() {
+//        let imgView = RoundImageView(color: .clear, cornerRadius: 0)
+//        imgView.contentMode = .scaleAspectFit
+//        guard let url = selectedUser?.profileImageUrl else { return }
+//        imgView.loadImage(urlString: url)
+//        guard let img = imgView.image else { return }
+//        imgView.frame = CGRect(x: 0, y: 0, width: 35, height: 35)
+//        imgView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleProfileImageClick)))
+//        let resizedImage = self.resizeImage(image: img, targetSize: CGSize(width: 35, height: 35))
+//        let roundedImage = self.maskRoundedImage(image: resizedImage, radius: 17.5)
+//        imgView.image = roundedImage
+//        imgView.layer.masksToBounds = true
+//        self.navigationItem.rightBarButtonItem = UIBarButtonItem(customView: imgView)
+//    }
+//
+//    fileprivate func resizeImage(image: UIImage, targetSize: CGSize) -> UIImage {
+//        let size = image.size
+//
+//        let widthRatio  = targetSize.width  / size.width
+//        let heightRatio = targetSize.height / size.height
+//        var newSize: CGSize
+//        if(widthRatio > heightRatio) {
+//            newSize = CGSize(width: size.width * heightRatio,height: size.height * heightRatio)
+//        } else {
+//            newSize = CGSize(width: size.width * widthRatio, height: size.height * widthRatio)
+//        }
+//        let rect = CGRect(x: 0, y: 0,width: newSize.width, height: newSize.height)
+//        UIGraphicsBeginImageContextWithOptions(newSize, false, 1.0)
+//        image.draw(in: rect)
+//        let newImage = UIGraphicsGetImageFromCurrentImageContext()
+//        UIGraphicsEndImageContext()
+//
+//        return newImage!
+//    }
+//
+//    fileprivate func maskRoundedImage(image: UIImage, radius: CGFloat) -> UIImage {
+//        let imageView: UIImageView = UIImageView(image: image)
+//        imageView.contentMode = .scaleAspectFit
+//        let layer = imageView.layer
+//        layer.masksToBounds = true
+//        layer.cornerRadius = radius
+//        UIGraphicsBeginImageContext(imageView.bounds.size)
+//        layer.render(in: UIGraphicsGetCurrentContext()!)
+//        let roundedImage = UIGraphicsGetImageFromCurrentImageContext()
+//        UIGraphicsEndImageContext()
+//        return roundedImage!
+//    }
+//
+    
     fileprivate func setupNavigationItems() {
         self.navigationItem.leftBarButtonItem = UIBarButtonItem(title: "Back", style: .plain, target: self, action: #selector(handleBack))
         self.navigationItem.title = selectedUser?.name
+  //      getUser()
         self.navigationController?.navigationBar.barTintColor = .black  
         self.navigationController?.navigationBar.titleTextAttributes = [NSAttributedStringKey.foregroundColor : UIColor.white]
     }
