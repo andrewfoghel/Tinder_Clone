@@ -9,15 +9,37 @@
 import UIKit
 import Photos
 
-class PhotoSelectorController: UICollectionViewController, UICollectionViewDelegateFlowLayout {
+class PhotoSelectorController: UICollectionViewController, UICollectionViewDelegateFlowLayout, UIViewControllerTransitioningDelegate {
     let cellId = "cellId"
     let headerId = "headerId"
     
     var editUserInfoViewController: EditUserInfoViewController?
     var signUpViewController: SignUpViewController?
     
+    let customAnimationPresenter = CustomAnimationPresenter()
+    let customAnimationDismisser = CustomAnimationDismisser()
+
+    func animationController(forPresented presented: UIViewController, presenting: UIViewController, source: UIViewController) -> UIViewControllerAnimatedTransitioning? {
+        if editUserInfoViewController != nil {
+            return customAnimationPresenter
+        } else {
+            return customAnimationDismisser
+        }
+    }
+    
+    func animationController(forDismissed dismissed: UIViewController) -> UIViewControllerAnimatedTransitioning? {
+        if editUserInfoViewController != nil {
+            return customAnimationDismisser
+        } else {
+            return customAnimationPresenter
+        }
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        transitioningDelegate = self
+        
         view.backgroundColor = offerBlack
         collectionView?.backgroundColor = offerBlack
         collectionView?.register(ImageViewCollectionViewCell.self, forCellWithReuseIdentifier: cellId)
@@ -41,11 +63,53 @@ class PhotoSelectorController: UICollectionViewController, UICollectionViewDeleg
         return true
     }
     
+    let fillerView: UIView = {
+        let view = UIView()
+        view.backgroundColor = offBlack
+        return view
+    }()
+    
+    let navBar: UIView = {
+        let view = UIView()
+        view.backgroundColor = offBlack
+        return view
+    }()
+    
+    let saveButton: UIButton = {
+        let btn = UIButton()
+        btn.setTitle("Save", for: .normal)
+        btn.setTitleColor(.white, for: .normal)
+        btn.addTarget(self, action: #selector(handleSave), for: .touchUpInside)
+        return btn
+    }()
+    
+    let cancelButton: UIButton = {
+        let btn = UIButton()
+        btn.setTitle("Cancel", for: .normal)
+        btn.setTitleColor(.white, for: .normal)
+        btn.addTarget(self, action: #selector(handleCancel), for: .touchUpInside)
+        return btn
+    }()
+    
     fileprivate func setupNavigationButtons() {
-        navigationController?.navigationBar.tintColor = .white
-        navigationController?.navigationBar.barTintColor = .black
-        navigationItem.leftBarButtonItem = UIBarButtonItem(title: "Cancel", style: .plain, target: self, action: #selector(handleCancel))
-        navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Save", style: .plain, target: self, action: #selector(handleSave))
+        view.addSubview(fillerView)
+        fillerView.anchor(top: view.topAnchor, left: view.leftAnchor, right: view.rightAnchor, bottom: view.safeAreaLayoutGuide.topAnchor, paddingTop: 0, paddingLeft: 0, paddingRight: 0, paddingBottom: 0, width: 0, height: 0)
+        
+        view.addSubview(navBar)
+        navBar.anchor(top: fillerView.bottomAnchor, left: view.leftAnchor, right: view.rightAnchor, bottom: nil, paddingTop: 0, paddingLeft: 0, paddingRight: 0, paddingBottom: 0, width: 0, height: 44)
+        
+        navBar.addSubview(saveButton)
+        saveButton.anchor(top: nil, left: nil, right: view.rightAnchor, bottom: nil, paddingTop: 0, paddingLeft: 0, paddingRight: 10, paddingBottom: 0, width: 50, height: 20)
+        saveButton.centerYAnchor.constraint(equalTo: navBar.centerYAnchor).isActive = true
+        
+        navBar.addSubview(cancelButton)
+        cancelButton.anchor(top: nil, left: view.leftAnchor, right: nil, bottom: nil, paddingTop: 0, paddingLeft: 10, paddingRight: 0, paddingBottom: 0, width: 60, height: 20)
+        cancelButton.centerYAnchor.constraint(equalTo: navBar.centerYAnchor).isActive = true
+ 
+//        navigationController?.navigationBar.tintColor = .white
+//        navigationController?.navigationBar.barTintColor = .black
+//        navigationItem.leftBarButtonItem = UIBarButtonItem(title: "Cancel", style: .plain, target: self, action: #selector(handleCancel))
+//        navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Save", style: .plain, target: self, action: #selector(handleSave))
     }
     
     @objc func handleCancel() {

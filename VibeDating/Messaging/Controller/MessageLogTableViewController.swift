@@ -32,6 +32,7 @@ class MessageLogTableViewController: UIViewController {
     }()
     
     fileprivate func setupViews() {
+        
         view.addSubview(collectionView)
         collectionView.delegate = self
         collectionView.dataSource = self
@@ -216,8 +217,8 @@ extension MessageLogTableViewController: UITableViewDelegate, UITableViewDataSou
             guard let user = user else { return }
             let chatLog = ChatLogCollectionViewController()
             chatLog.selectedUser = user
-            let navController = UINavigationController(rootViewController: chatLog)
-            self.present(navController, animated: true, completion: nil)
+       //     let navController = UINavigationController(rootViewController: chatLog)
+            self.present(chatLog, animated: true, completion: nil)
             
         }
     }
@@ -250,8 +251,8 @@ extension MessageLogTableViewController: UICollectionViewDelegate, UICollectionV
         let user = matchedUsers[indexPath.item]
         let chatLog = ChatLogCollectionViewController()
         chatLog.selectedUser = user
-        let navController = UINavigationController(rootViewController: chatLog)
-        present(navController, animated: true, completion: nil)
+     //   let navController = UINavigationController(rootViewController: chatLog)
+        present(chatLog, animated: true, completion: nil)
     }
 }
 

@@ -9,6 +9,8 @@
 import UIKit
 
 class LoginButton: UIButton {
+    
+    //AUTH VIDEO 5
     convenience init(color: UIColor, textColor: UIColor, title: String, font: UIFont?, cornerRadius: CGFloat) {
         self.init()
         self.backgroundColor = color

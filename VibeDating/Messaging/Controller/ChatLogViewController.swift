@@ -10,7 +10,7 @@ import UIKit
 import AVFoundation
 import MobileCoreServices
 
-class ChatLogCollectionViewController: UIViewController {
+class ChatLogCollectionViewController: UIViewController, UIViewControllerTransitioningDelegate {
     var selectedUser: MyUser?
     
     let cellId = "cell"
@@ -24,6 +24,17 @@ class ChatLogCollectionViewController: UIViewController {
     
     override var preferredStatusBarStyle: UIStatusBarStyle {
         return .lightContent
+    }
+    
+    let customAnimationPresenter = CustomAnimationPresenter()
+    let customAnimationDismisser = CustomAnimationDismisser()
+
+    func animationController(forPresented presented: UIViewController, presenting: UIViewController, source: UIViewController) -> UIViewControllerAnimatedTransitioning? {
+        return customAnimationDismisser
+    }
+    
+    func animationController(forDismissed dismissed: UIViewController) -> UIViewControllerAnimatedTransitioning? {
+        return customAnimationPresenter
     }
 
     let collectionView: UICollectionView = {
@@ -92,12 +103,54 @@ class ChatLogCollectionViewController: UIViewController {
 //    }
 //
     
+    let fillerView: UIView = {
+        let view = UIView()
+        view.backgroundColor = offBlack
+        return view
+    }()
+    
+    let navBar: UIView = {
+        let view = UIView()
+        view.backgroundColor = offBlack
+        return view
+    }()
+    
+    let backButton: UIButton = {
+        let btn = UIButton()
+        btn.setTitle("Back", for: .normal)
+        btn.setTitleColor(.white, for: .normal)
+        btn.addTarget(self, action: #selector(handleBack), for: .touchUpInside)
+        return btn
+    }()
+    
+    let nameLabel: UILabel = {
+        let lbl = UILabel()
+        lbl.font = UIFont.boldSystemFont(ofSize: 20)
+        lbl.textColor = .white
+        lbl.textAlignment = .center
+        return lbl
+    }()
+    
     fileprivate func setupNavigationItems() {
-        self.navigationItem.leftBarButtonItem = UIBarButtonItem(title: "Back", style: .plain, target: self, action: #selector(handleBack))
-        self.navigationItem.title = selectedUser?.name
-  //      getUser()
-        self.navigationController?.navigationBar.barTintColor = .black  
-        self.navigationController?.navigationBar.titleTextAttributes = [NSAttributedStringKey.foregroundColor : UIColor.white]
+        
+        view.addSubview(fillerView)
+        fillerView.anchor(top: view.topAnchor, left: view.leftAnchor, right: view.rightAnchor, bottom: view.safeAreaLayoutGuide.topAnchor, paddingTop: 0, paddingLeft: 0, paddingRight: 0, paddingBottom: 0, width: 0, height: 0)
+        view.addSubview(navBar)
+        navBar.anchor(top: fillerView.bottomAnchor, left: view.leftAnchor, right: view.rightAnchor, bottom: nil, paddingTop: 0, paddingLeft: 0, paddingRight: 0, paddingBottom: 0, width: 0, height: 44)
+        navBar.addSubview(backButton)
+        backButton.anchor(top: nil, left: view.leftAnchor, right: nil, bottom: nil, paddingTop: 0, paddingLeft: 10, paddingRight: 0, paddingBottom: 0, width: 50, height: 20)
+        backButton.centerYAnchor.constraint(equalTo: navBar.centerYAnchor).isActive = true
+        
+        navBar.addSubview(nameLabel)
+        nameLabel.text = selectedUser?.name
+        nameLabel.anchor(top: nil, left: view.leftAnchor, right: view.rightAnchor, bottom: nil, paddingTop: 0, paddingLeft: 0, paddingRight: 0, paddingBottom: 0, width: 0, height: 40)
+        nameLabel.centerYAnchor.constraint(equalTo: navBar.centerYAnchor).isActive = true
+
+//        self.navigationItem.leftBarButtonItem = UIBarButtonItem(title: "Back", style: .plain, target: self, action: #selector(handleBack))
+//        self.navigationItem.title = selectedUser?.name
+//  //      getUser()
+//        self.navigationController?.navigationBar.barTintColor = .black
+//        self.navigationController?.navigationBar.titleTextAttributes = [NSAttributedStringKey.foregroundColor : UIColor.white]
     }
     
     var bottomConstraint = NSLayoutConstraint()
@@ -108,7 +161,7 @@ class ChatLogCollectionViewController: UIViewController {
         view.addSubview(collectionView)
         view.addSubview(inputContainer)
         
-        collectionView.anchor(top: view.safeAreaLayoutGuide.topAnchor, left: view.leftAnchor, right: view.rightAnchor, bottom: view.safeAreaLayoutGuide.bottomAnchor, paddingTop: 0, paddingLeft: 0, paddingRight: 0, paddingBottom: 50, width: 0, height: 0)
+        collectionView.anchor(top: navBar.bottomAnchor, left: view.leftAnchor, right: view.rightAnchor, bottom: view.safeAreaLayoutGuide.bottomAnchor, paddingTop: 0, paddingLeft: 0, paddingRight: 0, paddingBottom: 50, width: 0, height: 0)
         collectionView.delegate = self
         collectionView.dataSource = self
         collectionView.register(ChatMessageCell.self, forCellWithReuseIdentifier: cellId)
@@ -160,6 +213,7 @@ class ChatLogCollectionViewController: UIViewController {
     var chatInputOriginalHeight: CGFloat = 0.0
     override func viewDidLoad() {
         super.viewDidLoad()
+        transitioningDelegate = self
         view.backgroundColor = UIColor(red: 75/255, green: 75/255, blue: 75/255, alpha: 1)
         setupNavigationItems()
         setupKeyboardObservers()

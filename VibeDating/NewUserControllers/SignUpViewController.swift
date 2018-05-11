@@ -201,6 +201,7 @@ class SignUpViewController: UIViewController {
     let interestedTextField = LoginTextField()
     let passwordTextField = LoginTextField()
     let confirmPasswordTextField = LoginTextField()
+    let jobTextField = LoginTextField()
     
     let signupButton = LoginButton(color: offBlack, textColor: offerBlack, title: "Sign Up", font: UIFont(name: "Marker Felt", size: 16), cornerRadius: 10)
     let loginButton: UIButton = {
@@ -233,6 +234,10 @@ class SignUpViewController: UIViewController {
         nameTextField.textField.delegate = self
         nameTextField.textField.addTarget(self, action: #selector(textFieldDidChange), for: .editingChanged)
         
+        jobTextField.placeHolderLabel.text = "Work"
+        jobTextField.textField.delegate = self
+        jobTextField.textField.addTarget(self, action: #selector(textFieldDidChange), for: .editingChanged)
+
         passwordTextField.placeHolderLabel.text = "Password"
         passwordTextField.textField.isSecureTextEntry = true
         passwordTextField.textField.delegate = self
@@ -255,12 +260,12 @@ class SignUpViewController: UIViewController {
         interestedTextField.textField.delegate = self
         interestedTextField.textField.inputView = UIView()
         
-        stackview = UIStackView(arrangedSubviews: [emailTextField, nameTextField, passwordTextField, confirmPasswordTextField, birthdayTextField, genderTextField, interestedTextField])
+        stackview = UIStackView(arrangedSubviews: [emailTextField, nameTextField, jobTextField, passwordTextField, confirmPasswordTextField, birthdayTextField, genderTextField, interestedTextField])
         stackview.spacing = 8
         stackview.distribution = .fillEqually
         stackview.axis = .vertical
         view.addSubview(stackview)
-        stackview.anchor(top: secondaryLogoLabel.bottomAnchor, left: nil, right: nil, bottom: nil, paddingTop: 40, paddingLeft: 0, paddingRight: 0, paddingBottom: 0, width: self.view.frame.width - 40, height: (CGFloat(stackview.subviews.count * (8 + 36))))
+        stackview.anchor(top: secondaryLogoLabel.bottomAnchor, left: nil, right: nil, bottom: nil, paddingTop: 40, paddingLeft: 0, paddingRight: 0, paddingBottom: 0, width: self.view.frame.width - 40, height: (CGFloat(stackview.subviews.count) * (8.0 + self.view.frame.height/22.55)))
         stackview.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
     }
     
@@ -275,6 +280,7 @@ class SignUpViewController: UIViewController {
     }
     
     var genderInputView = LoginTextField()
+    
     fileprivate func setupPopup(loginInputView: LoginTextField) {
         if loginInputView == birthdayTextField {
             self.setupDatePickerPopup()
@@ -295,6 +301,7 @@ class SignUpViewController: UIViewController {
             return
         }
     }
+    
     
     @objc fileprivate func handleDismissKeyboard(gesture: UITapGestureRecognizer) {
         self.view.endEditing(true)
@@ -354,8 +361,8 @@ class SignUpViewController: UIViewController {
     @objc fileprivate func handleAddImage(gesture: UITapGestureRecognizer) {
         let photoSelector = PhotoSelectorController(collectionViewLayout: UICollectionViewFlowLayout())
         photoSelector.signUpViewController = self
-        let navController = UINavigationController(rootViewController: photoSelector)
-        present(navController, animated: true, completion: nil)
+       // let navController = UINavigationController(rootViewController: photoSelector)
+        present(photoSelector, animated: true, completion: nil)
     }
     
     @objc fileprivate func handleSignUp() {
@@ -365,8 +372,9 @@ class SignUpViewController: UIViewController {
             guard let profileImage = profileImageView.image else { return }
             guard let email = emailTextField.textField.text else { return }
             guard let name = nameTextField.textField.text else { return }
+            guard let job = jobTextField.textField.text else { return }
             guard let password = passwordTextField.textField.text, let confirm = confirmPasswordTextField.textField.text else { return }
-            
+        
             guard password == confirm else { appDelegate.errorView(message: "Passwords don't match, please try again.", color: .red); return }
             
             guard let gender = genderTextField.textField.text?.lowercased(),
@@ -374,7 +382,7 @@ class SignUpViewController: UIViewController {
                 let birthday = birthdayTextField.textField.text
                 else { appDelegate.errorView(message: "Please set your matching preferences.", color: .red); return }
             
-            AuthLayer.shared.createUser(email: email, password: password, name: name, image: profileImage, gender: gender, interested: interested, birthday: birthday, completion: { (success, error) in
+            AuthLayer.shared.createUser(email: email, password: password, name: name, image: profileImage, gender: gender, interested: interested, birthday: birthday, job: job, completion: { (success, error) in
                 if let err = error {
                     appDelegate.errorView(message: err.localizedDescription, color: .red)
                     return

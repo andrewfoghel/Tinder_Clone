@@ -22,7 +22,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 //            try Auth.auth().signOut()
 //            print("logged out")
 //        } catch {
-//            
+//
 //        }
         
         window = UIWindow(frame: UIScreen.main.bounds)

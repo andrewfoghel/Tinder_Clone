@@ -19,9 +19,10 @@ class MyUser: NSObject {
     var lat: Double?
     var lon: Double?
     var index: Int?
+    var job: String?
     var autoIdIndex: String?
     
-    convenience init(uid: String, name: String, email: String, profileImageUrl: String, gender: String, interested: String, birthday: String) {
+    convenience init(uid: String, name: String, email: String, profileImageUrl: String, gender: String, interested: String, birthday: String, job: String) {
         self.init()
         self.uid = uid
         self.name = name
@@ -30,6 +31,7 @@ class MyUser: NSObject {
         self.gender = gender
         self.interested = interested
         self.age = birthday
+        self.job = job
     }
     
     convenience init(key: String, dictionary: [String : Any]) {
@@ -43,10 +45,11 @@ class MyUser: NSObject {
         self.age = dictionary["birthday"] as? String ?? ""
         self.lat = dictionary["lat"] as? Double ?? 0.0
         self.lon = dictionary["lon"] as? Double ?? 0.0
+        self.job = dictionary["job"] as? String ?? "IOS Developer"
     }
     
     var asJSON: [String : Any] {
-        return ["name" : self.name ?? "", "email" : self.email ?? "", "gender" : self.gender ?? "", "interested" : self.interested ?? "", "birthday" : self.age ?? ""]
+        return ["name" : self.name ?? "", "email" : self.email ?? "", "gender" : self.gender ?? "", "interested" : self.interested ?? "", "birthday" : self.age ?? "", "job" : self.job ?? ""]
     }
     
     

@@ -14,51 +14,35 @@ let offerBlack = UIColor(red: 38/255, green: 38/255, blue: 38/255, alpha: 1) //M
 
 class UserProfileViewController: UIViewController {
    
-// 1 --- TEMP WAY TO SET UP USER FUNC SEGUES *****************************************
-//    let btn: UIButton = {
-//        let btn = UIButton(type: .system)
-//        btn.backgroundColor = .red
-//        btn.addTarget(self, action: #selector(handleOpenSettings), for: .touchUpInside)
-//        return btn
-//    }()
-//
-//    @objc fileprivate func handleOpenSettings() {
-//        let alert = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
-//        let logout = UIAlertAction(title: "Logout", style: .default) { (_) in
-//            AuthLayer.shared.handleLogout {
-//                let loginVC = LoginViewController()
-//                let navController = UINavigationController(rootViewController: loginVC)
-//                self.present(navController, animated: true, completion: nil)
-//            }
-//        }
-//        let settings = UIAlertAction(title: "Settings" , style: .default) { (_) in
-//            print("settings")
-//        }
-//        let editInfo = UIAlertAction(title: "Edit Info", style: .default) { (_) in
-//            let editUserInfoVC = EditUserInfoViewController()
-//            let navController = UINavigationController(rootViewController: editUserInfoVC)
-//            self.present(navController, animated: true, completion: nil)
-//        }
-//        let cancel = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
-//
-//        alert.addAction(cancel)
-//        alert.addAction(logout)
-//        alert.addAction(settings)
-//        alert.addAction(editInfo)
-//
-//        self.present(alert, animated: true, completion: nil)
-//    }
-//
-//    override func viewDidLoad() {
-//    // 1 *****
-//    super.viewDidLoad()
-//
-//        view.addSubview(btn)
-//        btn.anchor(top: view.topAnchor, left: view.leftAnchor, right: nil, bottom: nil, paddingTop: 100, paddingLeft: 100, paddingRight: 0, paddingBottom: 0, width: 100, height: 100)
-//
-//        view.backgroundColor = .blue
-//    // 1 *****
-//    }
+    @objc fileprivate func handleOpenSettings() {
+        let alert = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
+        let logout = UIAlertAction(title: "Logout", style: .default) { (_) in
+            AuthLayer.shared.handleLogout {
+                let loginVC = LoginViewController()
+                let navController = UINavigationController(rootViewController: loginVC)
+                self.present(navController, animated: true, completion: nil)
+            }
+        }
+        let editAge = UIAlertAction(title: "Edit Age" , style: .default) { (_) in
+            print("editage")
+        }
+        let editInterest = UIAlertAction(title: "Edit Interests", style: .default) { (_) in
+            print("edit interest")
+        }
+        let editLocationPref = UIAlertAction(title: "Edit Distance", style: .default) { (_) in
+            print("edit Distance")
+        }
+        
+        let cancel = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
+
+        alert.addAction(cancel)
+        alert.addAction(logout)
+        alert.addAction(editAge)
+        alert.addAction(editInterest)
+        alert.addAction(editLocationPref)
+
+        self.present(alert, animated: true, completion: nil)
+    }
     // 1 --- TEMP WAY TO SET UP USER FUNC SEGUES *****************************************
 
     // 2 --- CREATING VIEWS FOR PROFILE PAGE *****************************************
@@ -75,7 +59,7 @@ class UserProfileViewController: UIViewController {
         tf.isEnabled = false
         tf.isUserInteractionEnabled = false
         tf.textColor = .white
-        tf.text = "IOS Developer"
+        tf.text = currentUser.job!
         tf.textAlignment = .center
         tf.translatesAutoresizingMaskIntoConstraints = false
         tf.leftViewMode = .always
@@ -91,7 +75,7 @@ class UserProfileViewController: UIViewController {
         let btn = UIButton()
         btn.backgroundColor = .gray
         btn.setImage(#imageLiteral(resourceName: "settings").withRenderingMode(.alwaysOriginal), for: .normal)
-        btn.addTarget(self, action: #selector(handleOptions), for: .touchUpInside)
+        btn.addTarget(self, action: #selector(handleOpenSettings), for: .touchUpInside)
         return btn
     }()
     
@@ -109,12 +93,8 @@ class UserProfileViewController: UIViewController {
     // 2.5 --- EDIT INFO/SETTINGS/PROFILE PIC TARGETS/GESTURES *****************************************
     @objc fileprivate func handleEditInfo() {
         let editUserInfoVC = EditUserInfoViewController()
-        let navController = UINavigationController(rootViewController: editUserInfoVC)
-        self.present(navController, animated: true, completion: nil)
-    }
-    
-    @objc fileprivate func handleOptions() {
-        print("settings")
+    //    let navController = UINavigationController(rootViewController: editUserInfoVC)
+        self.present(editUserInfoVC, animated: true, completion: nil)
     }
     
     @objc fileprivate func handleOpenUserProfile(gesture: UITapGestureRecognizer) {
@@ -201,7 +181,15 @@ class UserProfileViewController: UIViewController {
         
         view.addSubview(nameAgeLabel)
         nameAgeLabel.anchor(top: profileImageView.bottomAnchor, left: view.leftAnchor, right: view.rightAnchor, bottom: nil, paddingTop: self.view.frame.width/40, paddingLeft: 0, paddingRight: 0, paddingBottom: 0, width: 0, height: 35)
-        nameAgeLabel.attributedText = setNameAgeText(name: "Andrew Foghel", age: " \(36)")
+        guard let name = currentUser.name else { return }
+        
+        
+        let formatter = DateFormatter()
+        formatter.dateFormat = "MM DD, YYYY"
+        let interval = formatter.date(from: currentUser.age!)
+        let age = Int(floor((Date().timeIntervalSince1970 - (interval?.timeIntervalSince1970)!)/(60 * 60 * 24 * 365)))
+        
+        nameAgeLabel.attributedText = setNameAgeText(name: "\(name)", age: " \(age)")
         
         //2.2 *******
         leftTextFieldImageView.frame = CGRect(x: 0, y: 0, width: self.view.frame.width/9.375, height: self.view.frame.width/13.9)

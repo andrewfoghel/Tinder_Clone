@@ -56,21 +56,21 @@ class LoginViewController: UIViewController {
     var stackviewBottomConstraint = NSLayoutConstraint()
     fileprivate func setupViews() {
         emailTextField.placeHolderLabel.text = "Email"
-        emailTextField.textField.delegate = self
-        emailTextField.textField.addTarget(self, action: #selector(textFieldDidChange), for: .editingChanged)
+        emailTextField.textField.delegate = self //
+        emailTextField.textField.addTarget(self, action: #selector(textFieldDidChange), for: .editingChanged)////
         
         passwordTextField.placeHolderLabel.text = "Password"
         passwordTextField.textField.isSecureTextEntry = true
-        passwordTextField.textField.delegate = self
-        passwordTextField.textField.addTarget(self, action: #selector(textFieldDidChange), for: .editingChanged)
+        passwordTextField.textField.delegate = self //
+        passwordTextField.textField.addTarget(self, action: #selector(textFieldDidChange), for: .editingChanged)///
         
         stackview = UIStackView(arrangedSubviews: [emailTextField, passwordTextField])
         view.addSubview(stackview)
         stackview.axis = .vertical
         stackview.distribution = .fillEqually
         let estimatedWidth = (self.view.frame.width) - 40
-        stackview.anchor(top: nil, left: nil, right: nil, bottom: nil, paddingTop: 0, paddingLeft: 0, paddingRight: 0, paddingBottom: 0, width: estimatedWidth, height: CGFloat(stackview.arrangedSubviews.count * (8 + 36)))
-        stackview.centerXAnchor.constraint(equalTo: self.view.centerXAnchor).isActive = true
+        stackview.anchor(top: nil, left: nil, right: nil, bottom: nil, paddingTop: 0, paddingLeft: 0, paddingRight: 0, paddingBottom: 0, width: estimatedWidth, height: CGFloat(stackview.arrangedSubviews.count * (8 + 36))) // GET RID OF /2
+        stackview.centerXAnchor.constraint(equalTo: self.view.centerXAnchor).isActive = true //SET CENTER X
         stackviewBottomConstraint = stackview.bottomAnchor.constraint(equalTo: self.view.centerYAnchor, constant: CGFloat(-stackview.arrangedSubviews.count * (8 + 36)) / 2)
         stackviewBottomConstraint.isActive = true
         
@@ -79,6 +79,7 @@ class LoginViewController: UIViewController {
         
     }
     
+    //AUTH VIDEO 5
     fileprivate func setupAuthButtons() {
         view.addSubview(loginButton)
         loginButton.anchor(top: passwordTextField.bottomAnchor, left: passwordTextField.leftAnchor, right: passwordTextField.rightAnchor, bottom: nil, paddingTop: 12, paddingLeft: 0, paddingRight: 0, paddingBottom: 0, width: 0, height: 40)
@@ -130,6 +131,7 @@ class LoginViewController: UIViewController {
         }
     }
     
+    // AUTH VIDEO 6
     fileprivate func changeLoginButton() {
         if checkValidationOfInputFields() {
             self.loginButton.backgroundColor = .lightGray
@@ -140,6 +142,7 @@ class LoginViewController: UIViewController {
         }
     }
     
+    // AUTH VIDEO 6
     fileprivate func checkValidationOfInputFields() -> Bool{
         var count = 0
         for view in stackview.subviews {
@@ -156,6 +159,7 @@ class LoginViewController: UIViewController {
     
 }
 
+// AUTH VIDEO 6
 extension LoginViewController: UITextFieldDelegate {
     func textFieldDidBeginEditing(_ textField: UITextField) {
         guard let loginTextField = textField.superview as? LoginTextField else { return }

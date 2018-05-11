@@ -8,9 +8,13 @@
 
 import UIKit
 
-class EditUserInfoViewController: UIViewController {
+class EditUserInfoViewController: UIViewController, UIViewControllerTransitioningDelegate {
     
     //Edit Info View Controller
+    
+    override var preferredStatusBarStyle: UIStatusBarStyle {
+        return .lightContent
+    }
     
     let cellId = "cell"
     var cellToManipulate = ImageViewCollectionViewCell()
@@ -48,8 +52,8 @@ class EditUserInfoViewController: UIViewController {
     @objc fileprivate func handlePhotoUpload() {
         let photoSelector = PhotoSelectorController(collectionViewLayout: UICollectionViewFlowLayout())
         photoSelector.editUserInfoViewController = self
-        let navController = UINavigationController(rootViewController: photoSelector)
-        present(navController, animated: true, completion: nil)
+      //  let navController = UINavigationController(rootViewController: photoSelector)
+        present(photoSelector, animated: true, completion: nil)
     }
     
     let buttonItemView: UIView = {
@@ -154,12 +158,40 @@ class EditUserInfoViewController: UIViewController {
     
     var buttonItemViewTopAnchor = NSLayoutConstraint()
     var scrollViewBottomAnchor = NSLayoutConstraint()
+    
+    let fillerView: UIView = {
+        let view = UIView()
+        view.backgroundColor = offBlack
+        return view
+    }()
+    
+    let navBar: UIView = {
+        let view = UIView()
+        view.backgroundColor = offBlack
+        return view
+    }()
+    
+    let doneButton: UIButton = {
+        let btn = UIButton()
+        btn.setTitle("Done", for: .normal)
+        btn.setTitleColor(.white, for: .normal)
+        btn.addTarget(self, action: #selector(handleDone), for: .touchUpInside)
+        return btn
+    }()
+    
     fileprivate func setupImageViews() {
+        view.addSubview(fillerView)
+        fillerView.anchor(top: view.topAnchor, left: view.leftAnchor, right: view.rightAnchor, bottom: view.safeAreaLayoutGuide.topAnchor, paddingTop: 0, paddingLeft: 0, paddingRight: 0, paddingBottom: 0, width: 0, height: 0)
+        view.addSubview(navBar)
+        navBar.anchor(top: fillerView.bottomAnchor, left: view.leftAnchor, right: view.rightAnchor, bottom: nil, paddingTop: 0, paddingLeft: 0, paddingRight: 0, paddingBottom: 0, width: 0, height: 44)
+        navBar.addSubview(doneButton)
+        doneButton.anchor(top: nil, left: nil, right: view.rightAnchor, bottom: nil, paddingTop: 0, paddingLeft: 0, paddingRight: 10, paddingBottom: 0, width: 50, height: 20)
+        doneButton.centerYAnchor.constraint(equalTo: navBar.centerYAnchor).isActive = true
         
         view.addSubview(scrollView)
         navigationController?.navigationBar.tintColor = .white
         navigationController?.navigationBar.barTintColor = .black
-        scrollView.anchor(top: view.safeAreaLayoutGuide.topAnchor, left: view.leftAnchor, right: view.rightAnchor, bottom: nil, paddingTop: 0, paddingLeft: 0, paddingRight: 0, paddingBottom: 0, width: 0, height: 0)
+        scrollView.anchor(top: view.safeAreaLayoutGuide.topAnchor, left: view.leftAnchor, right: view.rightAnchor, bottom: nil, paddingTop: 44, paddingLeft: 0, paddingRight: 0, paddingBottom: 0, width: 0, height: 0)
         scrollViewBottomAnchor = scrollView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor)
         scrollViewBottomAnchor.isActive = true
         scrollView.addSubview(mainImageView)
@@ -174,7 +206,6 @@ class EditUserInfoViewController: UIViewController {
         scrollView.addSubview(separatorView)
         scrollView.addSubview(uploadButton)
         scrollView.addSubview(collectionView)
-        
         
         separatorView.anchor(top: mainImageView.bottomAnchor, left: view.leftAnchor, right: view.rightAnchor, bottom: nil, paddingTop: 0, paddingLeft: 0, paddingRight: 0, paddingBottom: 0, width: 0, height: 1)
         uploadButton.anchor(top: separatorView.bottomAnchor, left: view.leftAnchor, right: nil, bottom: nil, paddingTop: 0, paddingLeft: 0, paddingRight: 0, paddingBottom: 0, width: 80, height: 80)
@@ -250,7 +281,7 @@ class EditUserInfoViewController: UIViewController {
         self.scrollView.contentInset = contentInsets
         
         var rect = self.view.frame
-        rect.size.height = self.view.frame.height -  self.navigationController!.navigationBar.frame.height - 20.0 - keyboard.height
+        rect.size.height = self.view.frame.height - 44 - 20.0 - keyboard.height
         print(textView.frame.origin)
         if !rect.contains(self.textView.frame.origin) {
             let scrollPoint = CGPoint(x: 0.0, y: textView.frame.origin.y - (keyboard.height - 100))
@@ -339,14 +370,29 @@ class EditUserInfoViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        self.navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Done", style: .plain, target: self, action: #selector(handleDone))
-
+//        self.navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Done", style: .plain, target: self, action: #selector(handleDone))
+//        print("NavBAR: \(self.navigationController?.navigationBar.frame.height)")
+//        self.navigationController?.setNavigationBarHidden(true, animated: false)
+        
+        transitioningDelegate = self
         view.backgroundColor = offerBlack
         setupImageViews()
         getUserImages()
         getUserBio()
         setupKeyboardObservers()
     }
+    
+    let customAnimationPresenter = CustomAnimationPresenter()
+    func animationController(forPresented presented: UIViewController, presenting: UIViewController, source: UIViewController) -> UIViewControllerAnimatedTransitioning? {
+        
+        return customAnimationPresenter
+    }
+    
+    let customAnimationDismisser = CustomAnimationDismisser()
+    func animationController(forDismissed dismissed: UIViewController) -> UIViewControllerAnimatedTransitioning? {
+        return customAnimationDismisser
+    }
+    
 }
 
 extension EditUserInfoViewController: UICollectionViewDataSource, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout {

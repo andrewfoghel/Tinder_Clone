@@ -36,7 +36,6 @@ extension UIView {
         if height != 0 {
             self.heightAnchor.constraint(equalToConstant: height).isActive = true
         }
-        
     }
 }
 

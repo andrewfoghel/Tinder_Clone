@@ -96,11 +96,16 @@ class MatchingViewController: UIViewController {
     func createDynamicImageViewsForMatches(user: MyUser) {
         let nameAgeLabel: UILabel = {
             let lbl = UILabel()
-            lbl.font = UIFont.systemFont(ofSize: 20)
-            if let name = user.name{
-                lbl.text = name
-            }
-            lbl.textColor = .white
+            
+            let formatter = DateFormatter()
+            formatter.dateFormat = "MM DD, YYYY"
+            let interval = formatter.date(from: user.age!)
+            let age = Int(floor((Date().timeIntervalSince1970 - (interval?.timeIntervalSince1970)!)/(60 * 60 * 24 * 365)))
+            
+            let attributedText = NSMutableAttributedString(string: "\(user.name!),", attributes: [NSAttributedStringKey.font : UIFont.boldSystemFont(ofSize: 24), NSAttributedStringKey.foregroundColor : UIColor.white])
+            attributedText.append(NSAttributedString(string: "\(age)", attributes:[NSAttributedStringKey.font : UIFont.systemFont(ofSize: 24), NSAttributedStringKey.foregroundColor : UIColor.white]))
+            
+            lbl.attributedText = attributedText
             lbl.backgroundColor = .clear
             lbl.layer.shadowColor = UIColor.black.cgColor
             lbl.layer.shadowRadius = 2.0
@@ -269,7 +274,7 @@ class MatchingViewController: UIViewController {
             view.removeFromSuperview()
         }
     }
-
+    
     fileprivate func setupMatchView(matchedUser: MyUser) {
         let interestView: UIView = {
             let view = UIView()

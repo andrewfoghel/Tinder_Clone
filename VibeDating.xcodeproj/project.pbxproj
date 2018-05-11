@@ -18,6 +18,8 @@
 		0B2D85E4204CB42A0079014E /* RoundedImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B2D85E3204CB42A0079014E /* RoundedImageView.swift */; };
 		0B2D85E8204CCBF60079014E /* StorageLayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B2D85E7204CCBF60079014E /* StorageLayer.swift */; };
 		0B2D85EB204CD6C00079014E /* PhotoSelectorController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B2D85EA204CD6C00079014E /* PhotoSelectorController.swift */; };
+		0B37DB4E208A10A700273F81 /* CustomAnimationPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B37DB4D208A10A700273F81 /* CustomAnimationPresenter.swift */; };
+		0B37DB51208A10C000273F81 /* CustomAnimationDismisser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B37DB50208A10C000273F81 /* CustomAnimationDismisser.swift */; };
 		0B41DFE2204B83DA0097BD3C /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B41DFE1204B83DA0097BD3C /* AppDelegate.swift */; };
 		0B41DFE9204B83DA0097BD3C /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 0B41DFE8204B83DA0097BD3C /* Assets.xcassets */; };
 		0B41DFEC204B83DA0097BD3C /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 0B41DFEA204B83DA0097BD3C /* LaunchScreen.storyboard */; };
@@ -53,6 +55,8 @@
 		0B2D85E3204CB42A0079014E /* RoundedImageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoundedImageView.swift; sourceTree = "<group>"; };
 		0B2D85E7204CCBF60079014E /* StorageLayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageLayer.swift; sourceTree = "<group>"; };
 		0B2D85EA204CD6C00079014E /* PhotoSelectorController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoSelectorController.swift; sourceTree = "<group>"; };
+		0B37DB4D208A10A700273F81 /* CustomAnimationPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomAnimationPresenter.swift; sourceTree = "<group>"; };
+		0B37DB50208A10C000273F81 /* CustomAnimationDismisser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomAnimationDismisser.swift; sourceTree = "<group>"; };
 		0B41DFDE204B83DA0097BD3C /* VibeDating.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = VibeDating.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		0B41DFE1204B83DA0097BD3C /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		0B41DFE8204B83DA0097BD3C /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -120,6 +124,15 @@
 			path = CustomImagePicker;
 			sourceTree = "<group>";
 		};
+		0B37DB4C208A108B00273F81 /* TransitionAnimators */ = {
+			isa = PBXGroup;
+			children = (
+				0B37DB4D208A10A700273F81 /* CustomAnimationPresenter.swift */,
+				0B37DB50208A10C000273F81 /* CustomAnimationDismisser.swift */,
+			);
+			path = TransitionAnimators;
+			sourceTree = "<group>";
+		};
 		0B41DFD5204B83DA0097BD3C = {
 			isa = PBXGroup;
 			children = (
@@ -142,6 +155,7 @@
 			isa = PBXGroup;
 			children = (
 				0B41E009204BC4B60097BD3C /* MainPagationController.swift */,
+				0B37DB4C208A108B00273F81 /* TransitionAnimators */,
 				0B1A199220583B8D00C45B54 /* Messaging */,
 				0B0F303C2056F8D100F6D5CD /* Matching */,
 				0B85B4902055FC060056C489 /* UserProfile */,
@@ -399,6 +413,7 @@
 				0B13EBE82060314400745ED1 /* PhotoSelectorHeader.swift in Sources */,
 				0B41E00A204BC4B60097BD3C /* MainPagationController.swift in Sources */,
 				0B41E008204BB8F40097BD3C /* DataBaseLayer.swift in Sources */,
+				0B37DB4E208A10A700273F81 /* CustomAnimationPresenter.swift in Sources */,
 				0B41DFFB204B89940097BD3C /* Extensions.swift in Sources */,
 				0B41DFF7204B859D0097BD3C /* LoginViewController.swift in Sources */,
 				0BDA2C1B2058BE2C0041ADB2 /* Message.swift in Sources */,
@@ -419,6 +434,7 @@
 				0B13EBEA20604B3300745ED1 /* PulsingAnimation.swift in Sources */,
 				0B040FA82085415A0041082C /* CurvedContainerView.swift in Sources */,
 				0B1D41A7204C9C5F0031102F /* MatchingViewController.swift in Sources */,
+				0B37DB51208A10C000273F81 /* CustomAnimationDismisser.swift in Sources */,
 				0B1D41A5204C9ACE0031102F /* UserProfileViewController.swift in Sources */,
 				0BDA2C1D2058C5C90041ADB2 /* UserCell.swift in Sources */,
 			);

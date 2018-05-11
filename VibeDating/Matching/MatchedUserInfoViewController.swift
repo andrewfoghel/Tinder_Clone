@@ -41,6 +41,13 @@ class MatchedUserInfoViewController: UIViewController {
         return label
     }()
     
+    let jobLabel: UILabel = {
+        let label = UILabel()
+        label.font = UIFont(name: "Avenir Next", size: 12)
+        label.textColor = .white
+        return label
+    }()
+    
     let locationLabel: UILabel = {
         let label = UILabel()
         label.font = UIFont(name: "Avenir Next", size: 12)
@@ -85,9 +92,13 @@ class MatchedUserInfoViewController: UIViewController {
         nameLabel.text = user?.name
         nameLabel.anchor(top: collectionView.bottomAnchor, left: view.leftAnchor, right: view.rightAnchor, bottom: nil, paddingTop: 8, paddingLeft: 8, paddingRight: 12, paddingBottom: 0, width: 0, height: 20)
         
+        view.addSubview(jobLabel)
+        jobLabel.text = user?.job
+        jobLabel.anchor(top: nameLabel.bottomAnchor, left: nameLabel.leftAnchor, right: nameLabel.rightAnchor, bottom: nil, paddingTop: 4, paddingLeft: 0, paddingRight: 0, paddingBottom: 0, width: 0, height: 16)
+        
         view.addSubview(locationLabel)
-        locationLabel.text = "Location"
-        locationLabel.anchor(top: nameLabel.bottomAnchor, left: nameLabel.leftAnchor, right: nameLabel.rightAnchor, bottom: nil, paddingTop: 4, paddingLeft: 0, paddingRight: 0, paddingBottom: 0, width: 0, height: 16)
+        locationLabel.text = "Salt Lake City"
+        locationLabel.anchor(top: jobLabel.bottomAnchor, left: jobLabel.leftAnchor, right: jobLabel.rightAnchor, bottom: nil, paddingTop: 4, paddingLeft: 0, paddingRight: 0, paddingBottom: 0, width: 0, height: 16)
         
         view.addSubview(seperatorInset)
         seperatorInset.anchor(top: locationLabel.bottomAnchor, left: view.leftAnchor, right: view.rightAnchor, bottom: nil, paddingTop: 8, paddingLeft: 0, paddingRight: 0, paddingBottom: 0, width: 0, height: 1)

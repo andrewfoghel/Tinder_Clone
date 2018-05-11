@@ -45,14 +45,14 @@ class LoginTextField: UIView {
         return view
     }()
     
-    var placeHolderLeftOrRightAnchor = NSLayoutConstraint()
+    var placeHolderLeftOrRightAnchor = NSLayoutConstraint() // AUTH VIDEO 6
     
     let placeHolderLabel: UILabel = {
         let lbl = UILabel()
         lbl.font = UIFont(name: "Marker Felt", size: 14)
         lbl.textColor = .lightGray
         lbl.alpha = 0.5
-        lbl.textAlignment = .left
+        lbl.textAlignment = .left //CHANGE TO LEFT
         return lbl
     }()
     
@@ -66,9 +66,9 @@ class LoginTextField: UIView {
         underlineView.anchor(top: textField.bottomAnchor, left: leftAnchor, right: rightAnchor, bottom: nil, paddingTop: 0, paddingLeft: 0, paddingRight: 0, paddingBottom: 0, width: 0, height: 1)
         
         
-        placeHolderLabel.anchor(top: nil, left: nil, right: nil, bottom: underlineView.bottomAnchor, paddingTop: 0, paddingLeft: 4, paddingRight: 4, paddingBottom: 0, width: 100, height: 0)
-        placeHolderLeftOrRightAnchor = placeHolderLabel.leftAnchor.constraint(equalTo: underlineView.leftAnchor, constant: -2)
-        placeHolderLeftOrRightAnchor.isActive = true
+        placeHolderLabel.anchor(top: nil, left: nil, right: nil, bottom: underlineView.bottomAnchor, paddingTop: 0, paddingLeft: 4, paddingRight: 4, paddingBottom: 0, width: 100, height: 0) // AUTH VIDEO 6
+        placeHolderLeftOrRightAnchor = placeHolderLabel.leftAnchor.constraint(equalTo: underlineView.leftAnchor, constant: -2) // AUTH VIDEO 6
+        placeHolderLeftOrRightAnchor.isActive = true // AUTH VIDEO 6
     }
     
     required init?(coder aDecoder: NSCoder) {

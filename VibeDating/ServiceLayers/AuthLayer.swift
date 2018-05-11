@@ -16,7 +16,7 @@ class AuthLayer {
         return Auth.auth().currentUser ?? nil
     }
     
-    func createUser(email: String, password: String, name: String, image: UIImage, gender: String, interested: String, birthday: String, completion: @escaping (Bool, Error?) -> ()) {
+    func createUser(email: String, password: String, name: String, image: UIImage, gender: String, interested: String, birthday: String, job: String, completion: @escaping (Bool, Error?) -> ()) {
         Auth.auth().createUser(withEmail: email, password: password) { (user, error) in
             if let err = error {
                 print("There was an error creating the user: ", err.localizedDescription)
@@ -34,7 +34,7 @@ class AuthLayer {
                 }
                 
                 guard let url = downloadUrl else { return }
-                currentUser = MyUser(uid: user.uid, name: name, email: email, profileImageUrl: url, gender: gender, interested: interested, birthday: birthday)
+                currentUser = MyUser(uid: user.uid, name: name, email: email, profileImageUrl: url, gender: gender, interested: interested, birthday: birthday, job: job)
                 DatabaseLayer.shared.saveUserData(user: currentUser)
                 completion(true, nil)
             })
